@@ -1,0 +1,22 @@
+{
+  "name": "playwright_assignments",
+  "version": "1.0.0",
+  "description": "",
+  "main": "Assignment2.js",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Sathyaprakash3/playWright_Assignments.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Sathyaprakash3/playWright_Assignments/issues"
+  },
+  "homepage": "https://github.com/Sathyaprakash3/playWright_Assignments#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.59.1",
+    "@types/node": "^25.5.2"
+  }
+}
