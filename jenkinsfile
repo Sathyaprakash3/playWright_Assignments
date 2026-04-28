@@ -22,7 +22,7 @@ pipeline {
 
         stage('Run Smoke Tests') {
             steps {
-                bat 'npx playwright test --grep @smoke'
+                bat 'npx playwright test sampletestspec.ts'
             }
         }
 
