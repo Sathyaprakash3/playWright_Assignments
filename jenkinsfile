@@ -1,0 +1,53 @@
+pipeline {
+    agent any
+
+    tools {
+        nodejs 'Node18'
+    }
+
+    stages {
+
+        stage('Checkout Code') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                bat 'npm ci'
+                bat 'npx playwright install'
+            }
+        }
+
+        stage('Run Smoke Tests') {
+            steps {
+                bat 'npx playwright test apiTest.spec.ts'
+            }
+        }
+
+        stage('Publish HTML Report') {
+            steps {
+                publishHTML(target: [
+                    reportDir: 'playwright-report',
+                    reportFiles: 'index.html',
+                    reportName: 'Playwright HTML Report',
+                    keepAll: true,
+                    alwaysLinkToLastBuild: true
+                ])
+            }
+        }
+    }
+
+    post {
+        always {
+            echo 'Build Completed'
+        }
+        success {
+            echo 'Tests Passed'
+        }
+        failure {
+            echo 'Tests Failed'
+        }
+    }
+}
