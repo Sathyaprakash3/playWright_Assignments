@@ -49,6 +49,7 @@ pipeline {
                 URL: ${env.BUILD_URL}
                 """,
                 to: "sathyaprakash31997@gmail.com"
+                attachmentsPattern: '**/playwright-report/**/*'
             )
 
             echo "Build Completed"
