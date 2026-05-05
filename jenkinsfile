@@ -39,29 +39,27 @@ pipeline {
         }
     }
     post {
-    always {
-        emailext (
-            subject: "Build ${env.BUILD_NUMBER} - ${currentBuild.currentResult}",
-            body: """
-            Build Status: ${currentBuild.currentResult}
-            Project: ${env.JOB_NAME}
-            Build Number: ${env.BUILD_NUMBER}
-            URL: ${env.BUILD_URL}
-            """,
-            to: "sathyaprakash31997@gmail.com"
-        )
-    }
-}
-
-    post {
         always {
-            echo 'Build Completed'
+            emailext (
+                subject: "Build ${env.BUILD_NUMBER} - ${currentBuild.currentResult}",
+                body: """
+                Build Status: ${currentBuild.currentResult}
+                Project: ${env.JOB_NAME}
+                Build Number: ${env.BUILD_NUMBER}
+                URL: ${env.BUILD_URL}
+                """,
+                to: "sathyaprakash31997@gmail.com"
+            )
+
+            echo "Build Completed"
         }
+
         success {
-            echo 'Tests Passed'
+            echo "Tests Passed"
         }
+
         failure {
-            echo 'Tests Failed'
+            echo "Tests Failed"
         }
     }
 }
