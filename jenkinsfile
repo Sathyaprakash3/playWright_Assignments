@@ -37,7 +37,14 @@ pipeline {
                 ])
             }
         }
+
+        stage('Archive Playwright Artifacts') {
+            steps {
+                archiveArtifacts artifacts: 'playwright-report/**/*, test-results/**/*', fingerprint: true
+            }
+        }
     }
+
     post {
         always {
             emailext (
