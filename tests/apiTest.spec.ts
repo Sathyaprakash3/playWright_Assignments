@@ -29,3 +29,35 @@ test('api sample', async({request}) => {
     console.log(productBody.price);
     expect(await productBody.price).toBe(price); */
 })
+
+test('api get login', async({request}) => {
+     const response = await request.post(
+        'https://dummyjson.com/auth/login',
+        {
+            headers: {
+                'Content-Type': 'application/json'
+            },
+
+            data: {
+                username: 'emilys',
+                password: 'emilyspass',
+                expiresInMins: 30
+            }
+        }
+    );
+
+    expect(response.status()).toBe(200);
+
+    const body = await response.json();
+
+    console.log(body);
+
+    console.log(body.accessToken);
+    console.log(body.refreshToken);
+
+    expect(body.username).toBe('emilys');
+    expect(body.accessToken).toBeDefined();
+    expect(body.refreshToken).toBeDefined();
+
+
+})
