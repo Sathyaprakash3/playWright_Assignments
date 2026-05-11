@@ -17,7 +17,7 @@ pipeline {
 
         stage('Run Playwright Tests') {
             steps {
-                bat 'docker run -v %cd%\\dockerReports:/app/playwright-report playwright-framework'
+                bat 'docker run --rm -v %cd%\\dockerReports:/app/playwright-report playwright-framework'
             }
         }
 
@@ -36,9 +36,12 @@ pipeline {
                 subject: "Build ${env.BUILD_NUMBER} - ${currentBuild.currentResult}",
                 body: """
                 Build Status: ${currentBuild.currentResult}
+
                 Project: ${env.JOB_NAME}
+
                 Build Number: ${env.BUILD_NUMBER}
-                URL: ${env.BUILD_URL}
+
+                Build URL: ${env.BUILD_URL}
                 """,
                 to: "sathyaprakash31997@gmail.com",
                 attachmentsPattern: 'dockerReports/index.html',
@@ -49,7 +52,7 @@ pipeline {
         }
 
         success {
-            echo "Tests Passed"
+            echo "Tests Passed Successfully"
         }
 
         failure {
