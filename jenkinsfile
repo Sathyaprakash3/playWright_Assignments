@@ -9,21 +9,39 @@ pipeline {
             }
         }
 
-        stage('Build Docker Image') {
+        stage('Build Docker Images') {
             steps {
-                bat 'docker build -t playwright-framework .'
+                bat 'docker compose build'
             }
         }
 
-        stage('Run Playwright Tests') {
-            steps {
-                bat 'docker run --rm -v %cd%\\dockerReports:/app/playwright-report playwright-framework'
+        stage('Parallel Test Execution') {
+
+            parallel {
+
+                stage('Smoke Tests') {
+                    steps {
+                        bat 'docker compose run --rm smoke'
+                    }
+                }
+
+                stage('Regression Tests') {
+                    steps {
+                        bat 'docker compose run --rm regression'
+                    }
+                }
+
+                stage('API Tests') {
+                    steps {
+                        bat 'docker compose run --rm api'
+                    }
+                }
             }
         }
 
         stage('Archive Playwright Reports') {
             steps {
-                archiveArtifacts artifacts: 'dockerReports/**/*', fingerprint: true
+                archiveArtifacts artifacts: 'playwright-report/**/*', fingerprint: true
             }
         }
     }
@@ -31,6 +49,8 @@ pipeline {
     post {
 
         always {
+
+            bat 'docker compose down'
 
             emailext (
                 subject: "Build ${env.BUILD_NUMBER} - ${currentBuild.currentResult}",
@@ -44,7 +64,7 @@ pipeline {
                 Build URL: ${env.BUILD_URL}
                 """,
                 to: "sathyaprakash31997@gmail.com",
-                attachmentsPattern: 'dockerReports/index.html',
+                attachmentsPattern: 'playwright-report/index.html',
                 attachLog: true
             )
 
