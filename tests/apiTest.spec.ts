@@ -3,6 +3,7 @@ import test, { expect } from "@playwright/test";
 test('api sample', async({request}) => {
     const response = await request.get('https://dummyjson.com/products');
     const body = await response.json();
+    //console.log("New code added");
     //console.log(body);
     //Download products and print the price of the first 5 products and validate the price, title and stock with the response of the product id api
     console.log(body.products[0].id);
