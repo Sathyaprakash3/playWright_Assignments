@@ -29,15 +29,16 @@ export default defineConfig({
     // baseURL: 'http://localhost:3000',
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-    trace: 'on',
-    headless:false,
+    trace: 'on-first-retry',
+    headless:true,
   },
 
   /* Configure projects for major browsers */
   projects: [
     {
       name: 'chromium',
-       use: { browserName:'chromium',channel:'chrome',
+       use: { browserName:'chromium',
+        //channel:'chrome',
         viewport:null,
         launchOptions:{
          args:['--start-maximized']

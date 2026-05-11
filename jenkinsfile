@@ -1,10 +1,6 @@
 pipeline {
     agent any
 
-    tools {
-        nodejs 'Node18'
-    }
-
     stages {
 
         stage('Checkout Code') {
@@ -13,40 +9,29 @@ pipeline {
             }
         }
 
-        stage('Install Dependencies') {
+        stage('Build Docker Image') {
             steps {
-                bat 'npm ci'
-                bat 'npx playwright install'
+                bat 'docker build -t playwright-framework .'
             }
         }
 
-        stage('Run Smoke Tests') {
+        stage('Run Playwright Tests') {
             steps {
-                bat 'npx playwright test apiTest.spec.ts'
+                bat 'docker run -v %cd%\\dockerReports:/app/playwright-report playwright-framework'
             }
         }
 
-        stage('Publish HTML Report') {
+        stage('Archive Playwright Reports') {
             steps {
-                publishHTML(target: [
-                    reportDir: 'playwright-report',
-                    reportFiles: 'index.html',
-                    reportName: 'Playwright HTML Report',
-                    keepAll: true,
-                    alwaysLinkToLastBuild: true
-                ])
-            }
-        }
-
-        stage('Archive Playwright Artifacts') {
-            steps {
-                archiveArtifacts artifacts: 'playwright-report/**/*, test-results/**/*', fingerprint: true
+                archiveArtifacts artifacts: 'dockerReports/**/*', fingerprint: true
             }
         }
     }
 
     post {
+
         always {
+
             emailext (
                 subject: "Build ${env.BUILD_NUMBER} - ${currentBuild.currentResult}",
                 body: """
@@ -56,7 +41,7 @@ pipeline {
                 URL: ${env.BUILD_URL}
                 """,
                 to: "sathyaprakash31997@gmail.com",
-                attachmentsPattern: '**/playwright-report/index.html',
+                attachmentsPattern: 'dockerReports/index.html',
                 attachLog: true
             )
 
