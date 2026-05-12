@@ -3,13 +3,17 @@ version: '3'
 services:
 
   smoke:
-    build: .
-    container_name: smoke-tests
-    command: >
-      npx playwright test tests/smoke
-      --reporter=html
-    volumes:
-      - ./reports/smoke:/app/playwright-report
+  build: .
+  container_name: smoke-tests
+
+  command: >
+    npx playwright test tests/smoke --reporter=html
+
+  environment:
+    PLAYWRIGHT_HTML_OUTPUT_DIR: /app/reports/smoke
+
+  volumes:
+    - ./reports/smoke:/app/reports/smoke
 
   regression:
     build: .
@@ -17,8 +21,10 @@ services:
     command: >
       npx playwright test tests/regression
       --reporter=html
+    environment:
+      PLAYWRIGHT_HTML_OUTPUT_DIR: /app/reports/regression
     volumes:
-      - ./reports/regression:/app/playwright-report
+    - ./reports/smoke:/app/reports/smoke
 
   api:
     build: .
@@ -27,4 +33,4 @@ services:
       npx playwright test tests/api
       --reporter=html
     volumes:
-      - ./reports/api:/app/playwright-report
+    - ./reports/smoke:/app/reports/smoke
