@@ -1,6 +1,6 @@
 import test, { expect } from "@playwright/test";
 
-test.fail('api sample', async({request}) => {
+test('api sample', async({request}) => {
     const response = await request.get(process.env.DUMMYJSON_PRODUCTS_URL || 'https://dummyjson.com/products');
     const body = await response.json();
     //console.log("New code added");
