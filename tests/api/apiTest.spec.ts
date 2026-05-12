@@ -12,9 +12,9 @@ test('api sample', async({request}) => {
             const responseForID = await request.get(`${process.env.DUMMYJSON_PRODUCTS_URL || 'https://dummyjson.com/products'}/${body.products[i].id}`);
             const productBody = await responseForID.json();
             const thirdproductPrice = productBody.price;
-            console.log(thirdproductPrice);
+            //console.log(thirdproductPrice);
             const thirdproductTitle = productBody.title;
-            console.log(thirdproductTitle);
+            //console.log(thirdproductTitle);
             const thirdproductstock = productBody.stock;
             console.log(thirdproductstock);
 

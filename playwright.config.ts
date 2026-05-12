@@ -17,8 +17,8 @@ export default defineConfig({
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
-  /* Retry on CI only */
-  retries: process.env.CI ? 2 : 0,
+  /* Retry on failures */
+  retries: 2,
   /* Opt out of parallel tests on CI. */
   workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
@@ -32,8 +32,9 @@ export default defineConfig({
     baseURL: process.env.LEAFGROUND_BASE_URL || 'https://www.leafground.com/',
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-    trace: 'on-first-retry',
+    trace: 'retain-on-failure',
     headless:true,
+    
   },
 
   /* Configure projects for major browsers */
@@ -42,9 +43,9 @@ export default defineConfig({
       name: 'chromium',
        use: { browserName:'chromium',
         //channel:'chrome',
-        viewport:null,
+        viewport: { width: 1920, height: 1080 },
         launchOptions:{
-         args:['--start-maximized']
+         args:['--start-maximized', '--disable-blink-features=AutomationControlled']
        }},
     },
 

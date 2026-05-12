@@ -1,6 +1,7 @@
 import { test, expect } from '../../fixtures/customTest';
 test('dynamic table sorting', async ({ dashboardPage, tablePage, page }) => {
   await page.goto(process.env.LEAFGROUND_BASE_URL || "https://www.leafground.com/");
+  await dashboardPage.tableMenuIcon.waitFor({ state: 'visible' });
   await dashboardPage.tableMenuIcon.click();
   await dashboardPage.dynamicGridMenuLink.click();
   await tablePage.customerNameColumnHeader.click();
