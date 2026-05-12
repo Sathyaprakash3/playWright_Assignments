@@ -17,6 +17,7 @@
   "homepage": "https://github.com/Sathyaprakash3/playWright_Assignments#readme",
   "devDependencies": {
     "@playwright/test": "^1.59.1",
-    "@types/node": "^25.5.2"
+    "@types/node": "^25.5.2",
+    "dotenv": "^16.6.1"
   }
 }

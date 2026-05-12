@@ -1,7 +1,7 @@
 import test, { expect } from "@playwright/test";
 
 test('api sample', async({request}) => {
-    const response = await request.get('https://dummyjson.com/products');
+    const response = await request.get(process.env.DUMMYJSON_PRODUCTS_URL || 'https://dummyjson.com/products');
     const body = await response.json();
     //console.log("New code added");
     //console.log(body);
@@ -9,7 +9,7 @@ test('api sample', async({request}) => {
     console.log(body.products[0].id);
     for(let i = 1;i<=5;i++){
     
-            const responseForID = await request.get(`https://dummyjson.com/products/${body.products[i].id}`);
+            const responseForID = await request.get(`${process.env.DUMMYJSON_PRODUCTS_URL || 'https://dummyjson.com/products'}/${body.products[i].id}`);
             const productBody = await responseForID.json();
             const thirdproductPrice = productBody.price;
             console.log(thirdproductPrice);
@@ -33,7 +33,7 @@ test('api sample', async({request}) => {
 
 test('api get login', async({request}) => {
      const response = await request.post(
-        'https://dummyjson.com/auth/login',
+        process.env.DUMMYJSON_AUTH_URL || 'https://dummyjson.com/auth/login',
         {
             headers: {
                 'Content-Type': 'application/json'
