@@ -5,7 +5,7 @@ services:
     container_name: smoke-tests
 
     command: >
-      command: npx playwright test tests/smoke
+      npx playwright test tests/smoke
 
     environment:
       PLAYWRIGHT_HTML_OUTPUT_DIR: /app/reports/smoke
