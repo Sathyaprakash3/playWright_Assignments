@@ -5,14 +5,26 @@ services:
   smoke:
     build: .
     container_name: smoke-tests
-    command: npx playwright test tests/smoke
+    command: >
+      npx playwright test tests/smoke
+      --reporter=html
+    volumes:
+      - ./reports/smoke:/app/playwright-report
 
   regression:
     build: .
     container_name: regression-tests
-    command: npx playwright test tests/regression
+    command: >
+      npx playwright test tests/regression
+      --reporter=html
+    volumes:
+      - ./reports/regression:/app/playwright-report
 
   api:
     build: .
     container_name: api-tests
-    command: npx playwright test tests/api
+    command: >
+      npx playwright test tests/api
+      --reporter=html
+    volumes:
+      - ./reports/api:/app/playwright-report
