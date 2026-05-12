@@ -5,13 +5,14 @@ services:
     container_name: smoke-tests
 
     command: >
-      npx playwright test tests/smoke --reporter=html
+      command: npx playwright test tests/smoke
 
     environment:
       PLAYWRIGHT_HTML_OUTPUT_DIR: /app/reports/smoke
 
     volumes:
       - ./reports/smoke:/app/reports/smoke
+      - ./allure-results:/app/allure-results
 
 
   regression:
@@ -19,24 +20,24 @@ services:
     container_name: regression-tests
 
     command: >
-      npx playwright test tests/regression --reporter=html
+      npx playwright test tests/regression
 
     environment:
       PLAYWRIGHT_HTML_OUTPUT_DIR: /app/reports/regression
 
     volumes:
       - ./reports/regression:/app/reports/regression
-
+      - ./allure-results:/app/allure-results
 
   api:
     build: .
     container_name: api-tests
 
     command: >
-      npx playwright test tests/api --reporter=html
-
+      npx playwright test tests/api
     environment:
       PLAYWRIGHT_HTML_OUTPUT_DIR: /app/reports/api
 
     volumes:
       - ./reports/api:/app/reports/api
+      - ./allure-results:/app/allure-results

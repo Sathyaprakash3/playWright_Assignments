@@ -45,9 +45,9 @@ pipeline {
 
     always {
 
-        bat 'docker compose down'
+        bat 'allure generate allure-results --clean -o allure-report'
 
-        archiveArtifacts artifacts: 'reports/**/*', allowEmptyArchive: true
+        archiveArtifacts artifacts: 'allure-report/**/*', allowEmptyArchive: true
 
         emailext (
             subject: "Build ${env.BUILD_NUMBER} - ${currentBuild.currentResult}",
@@ -60,6 +60,8 @@ pipeline {
             attachmentsPattern: 'reports/**/*',
             attachLog: true
         )
+
+        bat 'docker compose down'
 
         echo "Build Completed"
     }
