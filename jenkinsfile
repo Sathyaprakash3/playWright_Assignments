@@ -39,44 +39,40 @@ pipeline {
             }
         }
 
-        stage('Archive Playwright Reports') {
-            steps {
-                archiveArtifacts artifacts: 'reports/**/*', fingerprint: true
-            }
-        }
     }
 
     post {
 
-        always {
+    always {
 
-            bat 'docker compose down'
+        bat 'docker compose down'
 
-            emailext (
-                subject: "Build ${env.BUILD_NUMBER} - ${currentBuild.currentResult}",
-                body: """
-                Build Status: ${currentBuild.currentResult}
+        archiveArtifacts artifacts: 'reports/**/*', fingerprint: true
 
-                Project: ${env.JOB_NAME}
+        emailext (
+            subject: "Build ${env.BUILD_NUMBER} - ${currentBuild.currentResult}",
+            body: """
+            Build Status: ${currentBuild.currentResult}
 
-                Build Number: ${env.BUILD_NUMBER}
+            Project: ${env.JOB_NAME}
 
-                Build URL: ${env.BUILD_URL}
-                """,
-                to: "sathyaprakash31997@gmail.com",
-                attachmentsPattern: 'playwright-report/index.html',
-                attachLog: true
-            )
+            Build Number: ${env.BUILD_NUMBER}
 
-            echo "Build Completed"
-        }
+            Build URL: ${env.BUILD_URL}
+            """,
+            to: "sathyaprakash31997@gmail.com",
+            attachLog: true
+        )
 
-        success {
-            echo "Tests Passed Successfully"
-        }
-
-        failure {
-            echo "Tests Failed"
-        }
+        echo "Build Completed"
     }
+
+    success {
+        echo "Tests Passed Successfully"
+    }
+
+    failure {
+        echo "Tests Failed"
+    }
+}
 }
