@@ -13,20 +13,25 @@ dotenv.config({ path: path.resolve(__dirname, '.env') });
  */
 export default defineConfig({
   testDir: './tests',
-  /* Run tests in files in parallel */
+  
+  /* Run tests in files in parallel for isolation testing */
   fullyParallel: true,
+  
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
-  /* Retry on failures */
+  
+  /* Retry on failures - helps identify flaky tests */
   retries: 2,
-  /* Opt out of parallel tests on CI. */
+  
+  /* Opt out of parallel tests on CI to prevent resource conflicts. */
   workers: process.env.CI ? 1 : undefined,
+  
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: [
-  ['line'],
-  ['html', { open: 'never' }],
-  ['allure-playwright']
-],
+    ['line'],
+    ['html', { open: 'never' }],
+    ['allure-playwright'],
+  ],
   
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
@@ -35,20 +40,31 @@ export default defineConfig({
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'retain-on-failure',
-    headless:true,
     
+    /* Screenshot on failure for debugging */
+    screenshot: 'only-on-failure',
+    
+    /* Video on failure for debugging */
+    video: 'retain-on-failure',
+    
+    headless: true,
   },
+
+  /* Global setup and teardown for test isolation */
+  globalSetup: undefined,
+  globalTeardown: undefined,
 
   /* Configure projects for major browsers */
   projects: [
     {
       name: 'chromium',
-       use: { browserName:'chromium',
-        //channel:'chrome',
+      use: {
+        browserName: 'chromium',
         viewport: { width: 1920, height: 1080 },
-        launchOptions:{
-         args:['--start-maximized', '--disable-blink-features=AutomationControlled']
-       }},
+        launchOptions: {
+          args: ['--start-maximized', '--disable-blink-features=AutomationControlled'],
+        },
+      },
     },
 
     /*{
@@ -88,4 +104,12 @@ export default defineConfig({
   //   url: 'http://localhost:3000',
   //   reuseExistingServer: !process.env.CI,
   // },
+
+  /* Test timeout for isolation verification */
+  timeout: 30000,
+
+  /* Expect timeout for isolated assertions */
+  expect: {
+    timeout: 5000,
+  },
 });
