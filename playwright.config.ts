@@ -1,47 +1,70 @@
 import { defineConfig, devices } from '@playwright/test';
+import dotenv from 'dotenv';
+import path from 'path';
 
 /**
  * Read environment variables from file.
  * https://github.com/motdotla/dotenv
  */
-// import dotenv from 'dotenv';
-// import path from 'path';
-// dotenv.config({ path: path.resolve(__dirname, '.env') });
+dotenv.config({ path: path.resolve(__dirname, '.env') });
 
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
 export default defineConfig({
   testDir: './tests',
-  /* Run tests in files in parallel */
+  
+  /* Run tests in files in parallel for isolation testing */
   fullyParallel: true,
+  
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
-  /* Retry on CI only */
-  retries: process.env.CI ? 2 : 0,
-  /* Opt out of parallel tests on CI. */
+  
+  /* Retry on failures - helps identify flaky tests */
+  retries: 2,
+  
+  /* Opt out of parallel tests on CI to prevent resource conflicts. */
   workers: process.env.CI ? 1 : undefined,
+  
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: 'html',
+  reporter: [
+    ['line'],
+    ['html', { open: 'never' }],
+    ['allure-playwright'],
+  ],
+  
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('')`. */
-    // baseURL: 'http://localhost:3000',
+    baseURL: process.env.LEAFGROUND_BASE_URL || 'https://www.leafground.com/',
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-    trace: 'on',
-    headless:false,
+    trace: 'retain-on-failure',
+    
+    /* Screenshot on failure for debugging */
+    screenshot: 'only-on-failure',
+    
+    /* Video on failure for debugging */
+    video: 'retain-on-failure',
+    
+    headless: true,
   },
+
+  /* Global setup and teardown for test isolation */
+  globalSetup: undefined,
+  globalTeardown: undefined,
 
   /* Configure projects for major browsers */
   projects: [
     {
       name: 'chromium',
-       use: { browserName:'chromium',channel:'chrome',
-        viewport:null,
-        launchOptions:{
-         args:['--start-maximized']
-       }},
+      use: {
+        browserName: 'chromium',
+        viewport: { width: 1920, height: 1080 },
+        launchOptions: {
+          args: ['--start-maximized', '--disable-blink-features=AutomationControlled'],
+        },
+      },
     },
 
     /*{
@@ -81,4 +104,12 @@ export default defineConfig({
   //   url: 'http://localhost:3000',
   //   reuseExistingServer: !process.env.CI,
   // },
+
+  /* Test timeout for isolation verification */
+  timeout: 30000,
+
+  /* Expect timeout for isolated assertions */
+  expect: {
+    timeout: 5000,
+  },
 });

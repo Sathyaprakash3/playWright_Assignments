@@ -1,18 +1,20 @@
 import { test, expect } from '@playwright/test';
 
-test('has title', async ({ page }) => {
+test('playwright docs - verify title contains', async ({ page }) => {
+  // Setup: Navigate to Playwright documentation
   await page.goto('https://playwright.dev/');
-
-  // Expect a title "to contain" a substring.
+  
+  // Assert: Verify page title
   await expect(page).toHaveTitle(/Playwright/);
 });
 
-test('get started link', async ({ page }) => {
+test('playwright docs - verify get started link navigation', async ({ page }) => {
+  // Setup: Navigate to Playwright documentation
   await page.goto('https://playwright.dev/');
-
-  // Click the get started link.
+  
+  // Test: Click get started link
   await page.getByRole('link', { name: 'Get started' }).click();
-
-  // Expects page to have a heading with the name of Installation.
+  
+  // Assert: Verify installation heading is visible
   await expect(page.getByRole('heading', { name: 'Installation' })).toBeVisible();
 });

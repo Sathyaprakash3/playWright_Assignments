@@ -1,0 +1,236 @@
+/**
+ * TEST ISOLATION CHECKLIST & QUICK REFERENCE
+ * Use this when writing new tests to ensure proper isolation
+ */
+
+// ✅ STEP 1: Import correct modules
+import { test, expect } from '../../fixtures/customTest'; // NOT @playwright/test
+import { testData } from '../../fixtures/testData';
+
+// ✅ STEP 2: Use descriptive test names with context
+test('feature name - specific behavior to verify', async ({ page, dashboardPage, tablePage }) => {
+  
+  // ✅ STEP 3: Organize test in AAA pattern (Arrange, Act, Assert)
+  
+  // ARRANGE: Setup
+  // - Navigate to URL
+  // - Initialize data
+  // - Set preconditions
+  const URL = testData.baseUrl;
+  await page.goto(URL);
+  await page.waitForLoadState('networkidle');
+  
+  // ACT: Perform test actions
+  // - User interactions
+  // - DOM manipulations
+  // - API calls
+  await dashboardPage.tableMenuIcon.click();
+  
+  // ASSERT: Verify results
+  // - Check element visibility
+  // - Verify data
+  // - Confirm state changes
+  await expect(dashboardPage.tableMenuIcon).toBeVisible();
+});
+
+/**
+ * ✅ ISOLATION CHECKLIST
+ * Use this before committing test code
+ */
+
+export const testIsolationChecklist = {
+  imports: [
+    '✅ Using fixtures/customTest instead of @playwright/test',
+    '✅ Importing testData from fixtures/testData',
+    '✅ No relative path imports outside fixtures/pages/utils',
+  ],
+  
+  naming: [
+    '✅ Test name describes what is tested',
+    '✅ Test name includes expected behavior',
+    '✅ No generic names like "test1", "sample", "check"',
+  ],
+  
+  setup: [
+    '✅ Using testData for all URLs and credentials',
+    '✅ Navigating to URL explicitly in test',
+    '✅ Waiting for page load with waitForLoadState',
+    '✅ No test.beforeAll() or global setup in test file',
+  ],
+  
+  execution: [
+    '✅ Test performs ONE logical task',
+    '✅ No test.only() or test.skip() in code',
+    '✅ No console.log() for debugging (use test report)',
+    '✅ No hardcoded delays (use proper waits)',
+  ],
+  
+  assertions: [
+    '✅ Assertions have meaningful error messages',
+    '✅ Multiple assertions if needed for one feature',
+    '✅ Using proper expect() matchers',
+    '✅ Assertions check business logic, not implementation',
+  ],
+  
+  cleanup: [
+    '✅ No manual cleanup needed (fixtures handle it)',
+    '✅ No state persisted to files/database',
+    '✅ No external resources left open',
+    '✅ Page navigates to blank on test end (automatic)',
+  ],
+  
+  independence: [
+    '✅ Test passes when run alone',
+    '✅ Test passes when run in parallel with others',
+    '✅ Test passes in any execution order',
+    '✅ No dependencies on other tests',
+  ],
+};
+
+/**
+ * 🚫 DO NOT DO
+ */
+
+export const doNotDo = {
+  // ❌ WRONG: Using @playwright/test
+  'do NOT use': `import { test } from '@playwright/test'`,
+  'do INSTEAD': `import { test } from '../../fixtures/customTest'`,
+  
+  // ❌ WRONG: test.only blocks other tests
+  'do NOT use': `test.only('some test', ...)`,
+  'do INSTEAD': `test('some test', ...)`,
+  
+  // ❌ WRONG: Hardcoding URLs
+  'do NOT use': `await page.goto('https://www.leafground.com/')`,
+  'do INSTEAD': `await page.goto(testData.baseUrl)`,
+  
+  // ❌ WRONG: Shared state between tests
+  'do NOT use': `let sharedVar = 0; test('t1', () => { sharedVar++ })`,
+  'do INSTEAD': `test('t1', () => { const localVar = 1 })`,
+  
+  // ❌ WRONG: Test depends on another test
+  'do NOT use': `test('test 2', async () => { expect(resultFromTest1).toBe(...) })`,
+  'do INSTEAD': `test('test 2', async () => { setup own data; test independently })`,
+  
+  // ❌ WRONG: Using test.beforeAll in test file
+  'do NOT use': `test.beforeAll(() => { globalSetup() })`,
+  'do INSTEAD': `// Use fixtures or global beforeEach in testIsolationHooks.ts`,
+  
+  // ❌ WRONG: Hardcoding test data
+  'do NOT use': `expect(element).toHaveText('INSTOCK')`,
+  'do INSTEAD': `expect(element).toHaveText(testData.table.expectedStatus)`,
+  
+  // ❌ WRONG: No wait for page load
+  'do NOT use': `await page.goto(url); await action()`,
+  'do INSTEAD': `await page.goto(url); await page.waitForLoadState('networkidle'); await action()`,
+};
+
+/**
+ * 📋 TEMPLATE FOR NEW TEST FILE
+ */
+
+export const testFileTemplate = `
+import { test, expect } from '../../fixtures/customTest';
+import { testData } from '../../fixtures/testData';
+
+// Isolated Test 1
+test('feature name - specific behavior 1', async ({ page, dashboardPage }) => {
+  // Setup
+  await page.goto(testData.baseUrl);
+  await page.waitForLoadState('networkidle');
+  
+  // Test
+  await dashboardPage.globeMenuIcon.click();
+  
+  // Assert
+  await expect(dashboardPage.globeMenuIcon).toBeVisible();
+});
+
+// Isolated Test 2
+test('feature name - specific behavior 2', async ({ page, productTablePage }) => {
+  // Setup
+  await page.goto(testData.baseUrl);
+  await page.waitForLoadState('networkidle');
+  
+  // Test
+  const ids = await productTablePage.idCells.allTextContents();
+  
+  // Assert
+  expect(ids.length).toBeGreaterThan(0);
+});
+`;
+
+/**
+ * 🔍 HOW TO VERIFY ISOLATION
+ */
+
+export const verifyIsolation = {
+  step1: 'Run test alone: npx playwright test -g "test name"',
+  step2: 'Run test with others: npx playwright test tests/file.spec.ts',
+  step3: 'Run all tests in parallel: npx playwright test',
+  step4: 'If all pass: ✅ Test is isolated',
+  step5: 'If any fails: ❌ Find and fix isolation issue',
+  
+  commonIssues: {
+    'fails in parallel but passes alone': 'Shared resource or state leakage',
+    'fails randomly': 'Timing issue - add explicit waits',
+    'first pass, rest fail': 'Global state not reset properly',
+    'fails in CI but passes locally': 'Browser/OS specific or timing sensitive',
+  },
+};
+
+/**
+ * 🛠️ COMMON PATTERNS FOR ISOLATED TESTS
+ */
+
+export const commonPatterns = {
+  'navigation and assertion': `
+    test('navigate and verify', async ({ page }) => {
+      await page.goto(testData.baseUrl);
+      await expect(page).toHaveTitle(/leafground/i);
+    });
+  `,
+  
+  'with page object': `
+    test('interact with page object', async ({ page, dashboardPage }) => {
+      await page.goto(testData.baseUrl);
+      await dashboardPage.globeMenuIcon.click();
+      await expect(dashboardPage.globeMenuIcon).toBeVisible();
+    });
+  `,
+  
+  'with multiple fixtures': `
+    test('use multiple page objects', async ({ page, dashboardPage, tablePage }) => {
+      await page.goto(testData.baseUrl);
+      await dashboardPage.tableMenuIcon.click();
+      const rows = await tablePage.tableRows.count();
+      expect(rows).toBeGreaterThan(0);
+    });
+  `,
+  
+  'with loop but safe': `
+    test('loop with max iterations', async ({ productTablePage, page }) => {
+      await page.goto(testData.baseUrl);
+      let found = false;
+      let maxAttempts = 5;
+      let attempts = 0;
+      
+      while (!found && attempts < maxAttempts) {
+        const ids = await productTablePage.idCells.allTextContents();
+        if (ids.includes('1012')) found = true;
+        attempts++;
+      }
+      
+      expect(found).toBeTruthy();
+    });
+  `,
+  
+  'api test isolated': `
+    test('api endpoint', async ({ request }) => {
+      const response = await request.get(testData.dummyJsonApi);
+      expect(response.status()).toBe(200);
+    });
+  `,
+};
+
+console.log('✅ Test Isolation Quick Reference Loaded');

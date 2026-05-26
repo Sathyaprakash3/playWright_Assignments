@@ -1,10 +1,6 @@
 pipeline {
     agent any
 
-    tools {
-        nodejs 'Node18'
-    }
-
     stages {
 
         stage('Checkout Code') {
@@ -13,41 +9,73 @@ pipeline {
             }
         }
 
-        stage('Install Dependencies') {
+        stage('Build Docker Images') {
             steps {
-                bat 'npm ci'
-                bat 'npx playwright install'
+                bat 'docker compose build'
             }
         }
 
-        stage('Run Smoke Tests') {
-            steps {
-                bat 'npx playwright test apiTest.spec.ts'
+        stage('Parallel Test Execution') {
+
+            parallel {
+
+                stage('Smoke Tests') {
+                    steps {
+                        bat 'docker compose run --rm smoke'
+                    }
+                }
+
+                stage('Regression Tests') {
+                    steps {
+                        bat 'docker compose run --rm regression'
+                    }
+                }
+
+                stage('API Tests') {
+                    steps {
+                        bat 'docker compose run --rm api'
+                    }
+                }
             }
         }
 
-        stage('Publish HTML Report') {
-            steps {
-                publishHTML(target: [
-                    reportDir: 'playwright-report',
-                    reportFiles: 'index.html',
-                    reportName: 'Playwright HTML Report',
-                    keepAll: true,
-                    alwaysLinkToLastBuild: true
-                ])
-            }
-        }
     }
 
     post {
-        always {
-            echo 'Build Completed'
-        }
-        success {
-            echo 'Tests Passed'
-        }
-        failure {
-            echo 'Tests Failed'
-        }
+
+    always {
+
+        allure([
+            includeProperties: false,
+            jdk: '',
+            results: [[path: 'allure-results']]
+            ])
+
+        archiveArtifacts artifacts: 'allure-report/**/*', allowEmptyArchive: true
+
+        emailext (
+            subject: "Build ${env.BUILD_NUMBER} - ${currentBuild.currentResult}",
+            body: """
+            Build Status: ${currentBuild.currentResult}
+
+            Build URL: ${env.BUILD_URL}
+            """,
+            to: "sathyaprakash31997@gmail.com",
+            attachmentsPattern: 'reports/**/*',
+            attachLog: true
+        )
+
+        bat 'docker compose down'
+
+        echo "Build Completed"
     }
+
+    success {
+        echo "Tests Passed Successfully"
+    }
+
+    failure {
+        echo "Tests Failed"
+    }
+}
 }
